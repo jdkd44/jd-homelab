@@ -1,1 +1,123 @@
-This is a test
+services:
+  ms_jellyfin:
+    image: linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+      - JELLYFIN_PublishedServerUrl=${JF_SERVER_URL}
+    volumes:
+      - ${DOCKER_FOLDER}/jellyfin_config:/config
+      - ${TV_PATH}:/data/tvshows
+      - ${MOVIE_PATH}:/data/movies
+      - ${ANIME_PATH}:/data/anime
+    ports:
+      - 8096:8096
+      - 8097:8097
+    restart: unless-stopped
+  ms_sonarr:
+      image: linuxserver/sonarr
+      container_name: sonarr
+      environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+      volumes:
+        - ${DOCKER_FOLDER}/sonarr_config:/config
+        - ${ANIME_PATH}:/anime
+        - ${TV_PATH}:/tvshows
+        - ${COMPLETE_DOWNLOADS}:/downloads
+      ports:
+        - 8989:8989
+      restart: unless-stopped
+  ms_radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+    volumes:
+      - ${DOCKER_FOLDER}/radarr_config:/config
+      - ${COMPLETE_DOWNLOADS}:/downloads
+      - ${MOVIE_PATH}:/movies
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+  ms_bazarr:
+    image: linuxserver/bazarr
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+    volumes:
+      - ${DOCKER_FOLDER}/bazarr_config:/config
+      - ${MOVIE_PATH}:/movies
+      - ${TV_PATH}:/tvshows
+      - ${ANIME_PATH}:/anime
+    ports:
+      - 6767:6767
+    restart: unless-stopped
+  ms_jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=America/Chicago
+    ports:
+      - 5055:5055
+    volumes:
+      - ${DOCKER_FOLDER}/jellyseerr_config:/app/config
+    restart: unless-stopped
+  ms_jfago:
+    image: hrfee/jfa-go:latest
+    restart: unless-stopped
+    ports:
+      - 8056:8056
+      - 8057:8057
+    volumes:
+      - ${DOCKER_FOLDER}/jfa_go_config:/data
+      - ${DOCKER_FOLDER}/jellyfin_config:/jf
+      - /etc/localtime:/etc/localtime:ro
+  ms_sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+    volumes:
+      - ${DOCKER_FOLDER}/sabnzbd_config:/config
+      - ${DOCKER_FOLDER}/sab_scripts:/scripts
+      - ${COMPLETE_DOWNLOADS}:/downloads
+      - ${INCOMPLETE_DOWNLOADS}:/incomplete-downloads
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+  ms_prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+    volumes:
+      - ${DOCKER_FOLDER}/prowlarr_config:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+  ms_notifiarr:
+    container_name: notifiarr
+    hostname: notifiarr
+    image: golift/notifiarr
+    restart: unless-stopped
+    ports:
+      - "5454:5454"
+    volumes:
+      - ${DOCKER_FOLDER}/notifiar_configr:/config
+      - /var/run/utmp:/var/run/utmp
+      - /etc/machine-id:/etc/machine-id
+
+
